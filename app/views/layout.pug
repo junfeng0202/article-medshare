@@ -1,0 +1,87 @@
+doctype html
+html
+	head
+		meta(charset="utf-8")
+		title #{titles}
+		link(rel="stylesheet",href="/layui/css/layui.css",media="all")
+		link(rel="stylesheet",href="/build/css/app.css",media="all")
+	body
+		.layui-layout.layui-layout-admin.kit-layout-admin
+			.layui-header
+				.layui-logo 迈德分享
+				ul.layui-nav.layui-layout-right.kit-nav
+					li.layui-nav-item
+						a(href='')
+							img.layui-nav-img(src="/images/face.jpg")
+						//
+							dl.layui-nav-child
+								dd
+									a(href='') 基本资料
+					li.layui-nav-item
+						a(href="/auth/logout")
+							i.fa.fa-sign-out(aria-hidden="true")
+							|注销
+			.layui-side.layui-bg-black.kit-side
+				.layui-side-scroll
+					.kit-side-fold
+						i.fa.fa-navicon(aria-hidden="true")
+					ul#navbar.layui-nav.layui-nav-tree(lay-filter="kitNavbar" kit-navbar)
+						li#bar1.layui-nav-item
+							a(href="/news")
+								i.layui-icon &#xe705; 
+								span  文章
+						li#bar2.layui-nav-item.layui-nav-itemed
+							a(href="/index")
+								i.layui-icon &#xe735; 
+								span  积分设置
+						li#bar3.layui-nav-item
+							a(href="/test")
+								i.layui-icon &#xe6b2;
+								span  自测题
+						li#bar4.layui-nav-item
+							a(href="/estimate")
+								i.layui-icon &#xe62e;
+								span  自测评估
+						li#bar5.layui-nav-item
+							a(href="/advice")
+								i.layui-icon &#xe6b2;
+								span  建议与反馈
+						li#bar6.layui-nav-item
+							a(href="/commission")
+								i.layui-icon &#xe65e;
+								span  提现管理
+			.layui-body
+				block content
+			script(src="/layui/layui.js",type="text/javascript")
+			script(type="text/javascript").
+				var message;
+				layui.config({
+					base: '/build/js/'
+				}).use(['app', 'message'], function() {
+					var app = layui.app,
+					$ = layui.jquery,
+					layer = layui.layer;
+					//将message设置为全局以便子页面调用
+					message = layui.message;
+					//主入口
+					app.set({
+						type: 'iframe'
+					}).init();
+					//console.log(location.href.indexOf('news'));
+					//$('#navbar li').removeClass('layui-nav-item-active');
+					if(location.href.indexOf('/news') !== -1){
+						$('#bar1').addClass('layui-nav-item-active');
+					}else if(location.href.indexOf('/test') !== -1){
+						$('#bar3').addClass('layui-nav-item-active');
+					}else if(location.href.indexOf('/estimate') !== -1){
+						$('#bar4').addClass('layui-nav-item-active');
+					}else if(location.href.indexOf('/advice') !== -1){
+						$('#bar5').addClass('layui-nav-item-active');
+					}else if(location.href.indexOf('/commission') !== -1){
+						$('#bar6').addClass('layui-nav-item-active');
+					}else{
+						$('#bar2').addClass('layui-nav-item-active');
+					}
+				});
+			block script
+block more-content

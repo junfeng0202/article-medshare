@@ -1,0 +1,41 @@
+doctype html
+html
+	head
+		title 管理员登入
+		meta(charset="utf-8")
+		link(href="css/loginstyle.css",rel="stylesheet")
+		
+	body
+		h1
+		.app-location
+			h2 迈德分享数据管理平台
+			.line
+				p.error
+			form(method='post')
+				input(type="text",name="account",placeholder="请输入账号")
+				input(type="password",name="password",placeholder="请输入密码")
+				.submit
+					input(type="submit",id="dosubmit",value="登入")
+				.clear
+	script(type="text/javascript" src="js/jquery.min.js") 
+	script(type="text/javascript").
+		$(function(){
+			$('#dosubmit').click(function(e){
+				e.preventDefault();
+				var data = $('form').serialize();
+				$.ajax({
+					type:'post',
+					url :'/auth/login',
+					data:data,
+					success:function(res){
+						var resJson = JSON.parse(res);
+						//console.log(resJson);
+						if(resJson.errCode != 200){
+							$('p.error').html(resJson.reason);
+						}else{
+							location.href = resJson.params;
+						}
+					}
+				})
+			})
+		})

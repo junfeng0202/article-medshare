@@ -1,0 +1,90 @@
+extends ../layout
+block content
+	blockquote.layui-elem-quote 自测题列表
+
+	a.layui-btn(href="/estimate/edit") 添加
+	table.layui-table
+		colgroup:col:col:col:col:col:col:col
+		thead
+			tr
+				th ID
+				th 资讯
+				th 评价结果
+				th 最小值
+				th 最大值
+				th(width="200px") 操作
+		tbody
+			each row in rows
+				tr
+					//-console.log(row.dataValues);
+					//-console.log(row.News);
+					-var data = row.dataValues;
+					-var news = row.News.dataValues;
+					td #{data.estimateId}
+					td #{news.newsId}.#{news.title}
+					td !{data.estimate}
+					td #{data.minScore}
+					td #{data.maxScore}
+					td
+						a.layui-btn.layui-btn-sm.layui-btn-normal(href="/estimate/edit/"+data.estimateId)
+							i.layui-icon &#xe642;
+							|编辑
+						a.layui-btn.layui-btn-danger(href="/estimate/del/"+data.estimateId,id="del")
+							i.layui-icon &#xe640;
+							|删除
+
+
+	//
+		script(type="text/html" id="barDemo")
+			a.layui-btn.layui-btn-primary.layui-btn-xs(lay-event="detail") 查看
+			a.layui-btn.layui-btn-xs(lay-event="edit") 编辑
+			a.layui-btn.layui-btn-danger.layui-btn-xs(lay-event="del") 删除
+
+	
+	#pageDemo  
+block script
+	script.
+		layui.use(['laypage', 'layer', 'table', 'element'], 
+			function(){
+				var laypage = layui.laypage, //分页
+				layer = layui.layer, //弹层
+				//table = layui.table, //表格
+				$ = layui.jquery, 
+				element = layui.element; //元素操作
+
+				$(document).on('click','#del',function(e){
+					e.preventDefault();
+					var url = $(this).attr('href');
+					layer.msg('确定要删除吗？',{icon: 3, time:0,title:'提示信息', btn: ['确定', '取消'],yes:function(index){
+							//var $ = layui.jquery;
+		  					$.ajax({url:url,success:function(res){
+		  							var data = JSON.parse(res);
+		  							layer.alert(data.reason);
+		  							if(data.errCode == 200){
+		  								setTimeout(function(){
+		  									location.href = '/estimate'
+		  								},2000);
+		  							}
+		  						}
+		  					});
+							layer.close(index);
+						}
+					});
+				})
+				
+				laypage.render({
+					elem: 'pageDemo' //分页容器的id
+					,count: #{count} //总页数
+					,curr: #{currentPage} //当前页
+					,limit: #{limit}
+					,skin: '#1E9FFF' //自定义选中色值
+					,skip: true //开启跳页
+					,jump: function(obj, first){
+						if(!first){
+
+							location.href = '?page='+obj.curr;
+							//layer.msg('第'+ obj.curr +'页');
+						}
+					}
+				});
+			});

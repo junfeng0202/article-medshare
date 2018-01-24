@@ -1,0 +1,41 @@
+{
+  "name": "virus_source_management",
+  "version": "1.0.0",
+  "description": "managent\u001b[D\u001b[Dment for virus source",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/excalibur233/virus_source_management.git"
+  },
+  "author": "xuming.js",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/excalibur233/virus_source_management/issues"
+  },
+  "homepage": "https://github.com/excalibur233/virus_source_management#readme",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "crypto": "^1.0.1",
+    "csurf": "^1.9.0",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "log4js": "^2.3.9",
+    "moment": "^2.19.4",
+    "mysql2": "^1.4.2",
+    "pug": "^2.0.0-rc.4",
+    "qiniu": "^7.1.0",
+    "redis": "^2.8.0",
+    "sequelize": "^4.17.2",
+    "ueditor": "^1.2.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.9.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.7.0"
+  }
+}

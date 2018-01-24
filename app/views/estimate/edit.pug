@@ -1,0 +1,71 @@
+extends ../layout
+block content
+	blockquote.layui-elem-quote #{data.estimateId?'编辑':'添加'}
+	form.layui-form(action="/estimate/save")
+		if data.estimateId
+			input(type="hidden" name="estimateId" value=data.estimateId)
+		.layui-form-item.layui-row
+			label.layui-form-label 所属资讯*：
+			.layui-input-block.layui-col-md6
+				select(name="newsId",lay-verify="required")
+					option(value="") 请选择所属文章
+					each row in news
+						option(value=row.dataValues.newsId, selected= data.newsId === row.dataValues.newsId) #{row.title}
+		.layui-form-item.layui-row
+			label.layui-form-label 最小值*：
+			.layui-input-block.layui-col-md2
+				input.layui-input(name="minScore",type="number",value=data.minScore,lay-verify="required")
+		.layui-form-item.layui-row
+			label.layui-form-label 最大值*：
+			.layui-input-block.layui-col-md2
+				input.layui-input(name="maxScore",type="number",value=data.maxScore,lay-verify="required")
+		.layui-form-item.layui-row
+			label.layui-form-label 评价结果*：
+			.layui-input-block.layui-col-md6
+				input.layui-input(name="estimate",value=data.estimate,lay-verify="required")
+		.layui-form-item.layui-row
+			label.layui-form-label 分享文案*：
+			.layui-input-block.layui-col-md6
+				textarea.layui-textarea(lay-verify="required",name="shareContext") #{data.shareContext}
+		.layui-form-item.layui-row
+			label.layui-form-label 相关推荐：
+			.layui-input-block.layui-col-md6
+				textarea.layui-textarea(name="recommendContext") #{data.recommendContext}
+		.layui-form-item
+			label.layui-form-label
+			.layui-input-block.layui-col-md6
+				button.layui-btn(lay-submit lay-filter="formSmt") 提交
+				a.layui-btn.layui-btn-primary(id="goBack" href="javascript:history.back(-1)") 返回
+block script
+	script(type="text/javascript").
+
+		//Demo
+		layui.use('form', function(){
+			var form = layui.form;
+			var $ = layui.jquery;
+			//监听提交
+			form.on('submit(formSmt)', function(data){
+				var fields = $('form').serialize();
+				var index = layer.load(1);
+				$.ajax({
+					type:'post'
+					,url: '/estimate/save'
+					,data:fields
+					,success:function(data){
+						var res = JSON.parse(data);
+						//-console.log(res);
+						layer.close(index);
+						if(res.errCode == 200){
+							layer.alert(res.reason,{title:'提示信息',icon: 1});
+							setTimeout(function(){
+								location.href = '/estimate';
+							},2000)
+						}else{
+							layer.alert(res.reason,{title:'提示信息',time:2000});
+						}
+						//qiNiuToken.token = data;
+					}
+				})
+				return false;
+			});
+		});

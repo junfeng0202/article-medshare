@@ -1,0 +1,120 @@
+extends ./layout
+block content
+	blockquote.layui-elem-quote 提现管理
+	table.layui-table
+		colgroup:col:col:col:col:col:col:col:col:col:col
+		thead
+			tr
+				th.layui-form
+					input(type="checkbox",lay-filter="check_all",lay-skin="primary")
+				th ID
+				th 用户
+				th 提现金额(￥)
+				th 手机号
+				th 支付宝账号
+				th 支付宝账号名称
+				th 状态
+				th 申请时间
+				th(width="120px") 操作
+		tbody
+			each row in rows
+				tr
+					//-console.log(row.dataValues);
+					//-console.log(row.Share);
+					-var data = row.dataValues;
+					-var user = row.Share.dataValues;
+					td.layui-form.check_one
+						input(type="checkbox",lay-filter="check_one",lay-skin="primary",data-id=data.recordId)
+					td #{data.recordId}
+					td #{user.userName}
+					td #{data.changeNum}
+					td #{data.phone}
+					td #{data.aliPayAccount}
+					td #{data.aliPayAccountName}
+					td !{data.operatorResult ===1?'<span class="layui-btn layui-btn-sm layui-bg-cyan">已处理 </span>':'<span class="layui-btn layui-btn-sm layui-bg-orange">未处理</span>'}
+					td #{moment(data.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+					td
+						if(data.operatorResult===0)
+							button.layui-btn.layui-btn-sm.layui-btn-normal.edit-btn(data-url="/commission/edit?id="+data.recordId) 设为已处理
+						else
+							button.layui-btn.layui-btn-disabled 已处理
+
+
+	//
+		script(type="text/html" id="barDemo")
+			a.layui-btn.layui-btn-primary.layui-btn-xs(lay-event="detail") 查看
+			a.layui-btn.layui-btn-xs(lay-event="edit") 编辑
+			a.layui-btn.layui-btn-danger.layui-btn-xs(lay-event="del") 删除
+
+	.bottom
+		#pageDemo(style="float:left")
+		div(style="float:right;")
+			button.layui-btn.layui-btn-normal#dealAll 全部设为已处理
+block script
+	script.
+		layui.use(['laypage', 'layer', 'table', 'element','form'],
+			function(){
+				var laypage = layui.laypage, //分页
+				layer = layui.layer, //弹层
+				//table = layui.table, //表格
+				$ = layui.jquery, 
+				form = layui.form,
+				element = layui.element; //元素操作
+				
+				laypage.render({
+					elem: 'pageDemo' //分页容器的id
+					,count: #{count} //总页数
+					,curr: #{currentPage} //当前页
+					,limit: #{limit}
+					,skin: '#1E9FFF' //自定义选中色值
+					,skip: true //开启跳页
+					,jump: function(obj, first){
+						if(!first){
+							location.href = '?page='+obj.curr;
+							//layer.msg('第'+ obj.curr +'页');
+						}
+					}
+				});
+				//选中checkbox
+				form.on('checkbox(check_all)',function(data){
+					if(data.elem.checked){
+						$('.check_one .layui-form-checkbox').removeClass('layui-form-checked').addClass('layui-form-checked');
+						$('.check_one input').prop('checked',true);
+					}else{
+						$('.check_one .layui-form-checkbox').removeClass('layui-form-checked');
+						$('.check_one input').prop('checked',false);
+					}
+				})
+				//修改全部选中项
+				$('#dealAll').click(function(){
+					var arr = [];
+					$('.check_one input:checked').each(function(elem){
+						//console.log($(this).attr('data-id'));
+						arr.push($(this).attr('data-id'));
+					})
+					// console.log(arr);
+					if(arr.length === 0){
+						layer.alert('没有数据被选中');
+						return false;
+					}
+					// console.log(JSON.stringify(arr));return false;
+					var str = JSON.stringify(arr);
+					var url = '/commission/edit?id=' + str;
+					ajax_sub(url);
+				})
+				$('.edit-btn').click(function(){
+					var url = $(this).attr('data-url');
+					ajax_sub(url);
+				})
+				function ajax_sub(url){
+					$.get(url, function (res) {
+						console.log(res);
+						var data = JSON.parse(res);
+
+						layer.alert(data.reason, {time: 2000});
+						setTimeout(function () {
+							location.href = '/commission';
+						}, 2000);
+					});
+				}
+			});

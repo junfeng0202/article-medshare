@@ -1,0 +1,198 @@
+extends ../layout
+block content
+	blockquote.layui-elem-quote #{data.testId?'编辑':'添加'}
+	form.layui-form(action="/test/save")
+		if data.testId
+			input(type="hidden" name="testId" value=data.testId)
+		.layui-form-item.layui-row
+			label.layui-form-label 标题*：
+			.layui-input-block.layui-col-md6
+				input.layui-input(name="question",placeholder="请输入标题",autocomplete="off",value=data.question,lay-verify="required")
+		.layui-form-item.layui-row
+			label.layui-form-label 排序*：
+			.layui-input-block.layui-col-md2
+				input.layui-input(name="order",type="number" autocomplete="off",value=data.order,lay-verify="required")
+		.layui-form-item.layui-row
+			label.layui-form-label 类型*：
+			.layui-input-block.layui-col-md6
+				input(type="radio",name="type",value='1',checked=data.type!==2,title='判断题')
+				input(type="radio",name="type",value='2',checked=data.type===2,title='选择题')
+		.layui-form-item.layui-row
+			label.layui-form-label 所属文章*：
+			.layui-input-block.layui-col-md6
+				select(name="newsId",lay-verify="required")
+					option(value="") 请选择所属文章
+					each row in news
+						option(value=row.dataValues.newsId, selected= data.newsId === row.dataValues.newsId) #{row.title}
+		.layui-form-item.layui-row
+			label.layui-form-label 展示图：
+			.layui-input-block.layui-col-md6
+				input(name="imgUrl",type="hidden",id="faceImg",value=data.imgUrl)
+				button.layui-btn(type="button",id="upImg") 上传图片
+				.layui-upload-list
+					img.layui-upload-img(id="demo1",src=data.imgUrl,style="max-height:200px")
+					p(id="demoText")
+
+		.layui-form-item.options
+			label.layui-form-label 选项及分值：
+			.layui-input-block.option-model
+				unless data.options
+					.layui-form-pane.layui-row
+						.layui-inline.layui-col-md7
+							label.layui-form-label 选项*：
+							.layui-input-block
+								input.layui-input(name="options",placeholder="请填写选项",lay-verify="required")
+						.layui-inline.layui-col-md3
+							label.layui-form-label 分值*：
+							.layui-input-block
+								input.layui-input(name="scores",placeholder="请填写分值",type="number",lay-verify="required")
+						.layui-inline
+							i.layui-icon.layui-add(style="color:#009688;font-weight:bold;line-height: 38px;",title="添加选项") &#xe608;
+							| &nbsp;&nbsp;
+							i.layui-icon.layui-del(style="color:red;font-weight:bold;line-height: 38px;",title="删除选项") &#x1006;
+				else
+					- var options = JSON.parse(data.options);
+					- var scores = JSON.parse(data.scores);
+					each item,index in options
+						.layui-form-pane.layui-row
+							.layui-inline.layui-col-md7
+								label.layui-form-label 选项*：
+								.layui-input-block
+									input.layui-input(name="options",placeholder="请填写选项",lay-verify="required",value=item)
+							.layui-inline.layui-col-md3
+								label.layui-form-label 分值*：
+								.layui-input-block
+									input.layui-input(name="scores",placeholder="请填写分值",type="number",lay-verify="required",value=scores[index])
+							.layui-inline
+								i.layui-icon.layui-add(style="color:#009688;font-weight:bold;line-height: 38px;",title="添加选项") &#xe608;
+								| &nbsp;&nbsp;
+								i.layui-icon.layui-del(style="color:red;font-weight:bold;line-height: 38px;",title="删除选项") &#x1006;
+		.layui-form-item
+			label.layui-form-label
+			.layui-input-block.layui-col-md6
+				button.layui-btn(lay-submit lay-filter="formSmt") 提交
+				a.layui-btn.layui-btn-primary(id="goBack" href="javascript:history.back(-1)") 返回
+block script
+	script(type="text/javascript").
+
+		//Demo
+		layui.use('form', function(){
+			var form = layui.form;
+			var $ = layui.jquery;
+			$(document).on('click','.layui-add',function(){
+				// console.log($('#option-model').html());
+				$(this).parents('.layui-form-pane').after($('#option-model').html());
+			});
+			$(document).on('click','.layui-del',function(){
+				var pane = $(this).parents('.layui-form-pane');
+				layer.confirm('确定删除吗？',{title: '提示信息'},function(index){
+					pane.remove();
+					// console.log($('.layui-form-pane').length);
+					//至少保留一个选项
+					if($('.layui-form-pane').length < 2){
+						$('.option-model').append($('#option-model').html());
+					}
+					// $.ajax({
+					// 	type:'post',
+					// })
+					layer.close(index);
+				});
+			})
+			//监听提交
+			form.on('submit(formSmt)', function(data){
+				var fields = $('form').serialize();
+				// console.log(data);
+				// console.log($('form').serialize());
+				// if(fields.imgUrl==''){
+				// 	layer.alert('请上传封面图',{'title':'提示信息'});
+				// 	return false;
+				// }
+				// if(!fields.context){
+				// 	console.log(fields.context);
+				// 	layer.alert('请填写文章内容',{'title':'提示信息'});
+				// 	return false;
+				// }
+				var index = layer.load(1);
+				$.ajax({
+					type:'post'
+					,url: '/test/save'
+					,data:fields
+					,success:function(data){
+						var res = JSON.parse(data);
+						//-console.log(res);
+						layer.close(index);
+						if(res.errCode == 200){
+							layer.alert(res.reason,{title:'提示信息',icon: 1});
+							setTimeout(function(){
+								location.href = '/test';
+							},2000)
+						}else{
+							layer.alert(res.reason,{title:'提示信息',time:2000});
+						}
+						//qiNiuToken.token = data;
+					}
+				})
+				return false;
+			});
+		});
+
+		//封面图上传
+		layui.use('upload', function(){
+			//引入jquery
+			var $ = layui.jquery
+			,upload = layui.upload;
+			//获取七牛云文件上传token
+			var qiNiuToken = {};
+			$.ajax({
+				type:'get'
+				,url: '/auth/qiNiuToken'
+				,success:function(data){
+					qiNiuToken.token = data;
+				}
+			})
+			//console.log(qiNiuToken);
+			//return;
+			//普通图片上传
+			var uploadInst = upload.render({
+				elem: '#upImg'
+				,url: 'http://upload.qiniu.com/'
+				,data:qiNiuToken
+				,before: function(obj){
+					//预读本地文件示例，不支持ie8
+					obj.preview(function(index, file, result){
+					$('#demo1').attr('src', result); //图片链接（base64）
+					});
+				}
+				,done: function(res){
+					//console.log(res);
+					if(res.state == "SUCCESS"){
+						$('#faceImg').val(res.url);
+					}else{
+						return layer.msg('上传失败');
+					}
+				}
+				,error: function(){
+					//演示失败状态，并实现重传
+					var demoText = $('#demoText');
+					demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
+					demoText.find('.demo-reload').on('click', function(){
+					uploadInst.upload();
+					});
+				}
+			});
+		});
+block more-content
+	#option-model
+		.layui-form-pane.layui-row
+			.layui-inline.layui-col-md7
+				label.layui-form-label 选项*：
+				.layui-input-block
+					input.layui-input(name="options",placeholder="请填写选项",lay-verify="required")
+			.layui-inline.layui-col-md3
+				label.layui-form-label 分值*：
+				.layui-input-block
+					input.layui-input(name="scores",placeholder="请填写分值",type="number",lay-verify="required")
+			.layui-inline
+				i.layui-icon.layui-add(style="color:#009688;font-weight:bold;line-height: 38px;",title="添加选项") &#xe608;
+				| &nbsp;&nbsp;
+				i.layui-icon.layui-del(style="color:red;font-weight:bold;line-height: 38px;",title="删除选项") &#x1006;
