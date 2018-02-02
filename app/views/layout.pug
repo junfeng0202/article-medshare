@@ -30,26 +30,26 @@ html
 							a(href="/news")
 								i.layui-icon &#xe705; 
 								span  文章
-						li#bar2.layui-nav-item.layui-nav-itemed
-							a(href="/index")
-								i.layui-icon &#xe735; 
-								span  积分设置
-						li#bar3.layui-nav-item
-							a(href="/test")
-								i.layui-icon &#xe6b2;
-								span  自测题
-						li#bar4.layui-nav-item
-							a(href="/estimate")
-								i.layui-icon &#xe62e;
-								span  自测评估
-						li#bar5.layui-nav-item
-							a(href="/advice")
-								i.layui-icon &#xe6b2;
-								span  建议与反馈
-						li#bar6.layui-nav-item
-							a(href="/commission")
-								i.layui-icon &#xe65e;
-								span  提现管理
+						//li#bar2.layui-nav-item.layui-nav-itemed
+						//	a(href="/index")
+						//		i.layui-icon &#xe735;
+						//		span  积分设置
+						//li#bar3.layui-nav-item
+						//	a(href="/test")
+						//		i.layui-icon &#xe6b2;
+						//		span  自测题
+						//li#bar4.layui-nav-item
+						//	a(href="/estimate")
+						//		i.layui-icon &#xe62e;
+						//		span  自测评估
+						//li#bar5.layui-nav-item
+						//	a(href="/advice")
+						//		i.layui-icon &#xe6b2;
+						//		span  建议与反馈
+						//li#bar6.layui-nav-item
+						//	a(href="/commission")
+						//		i.layui-icon &#xe65e;
+						//		span  提现管理
 			.layui-body
 				block content
 			script(src="/layui/layui.js",type="text/javascript")
@@ -71,17 +71,17 @@ html
 					//$('#navbar li').removeClass('layui-nav-item-active');
 					if(location.href.indexOf('/news') !== -1){
 						$('#bar1').addClass('layui-nav-item-active');
-					}else if(location.href.indexOf('/test') !== -1){
-						$('#bar3').addClass('layui-nav-item-active');
-					}else if(location.href.indexOf('/estimate') !== -1){
-						$('#bar4').addClass('layui-nav-item-active');
-					}else if(location.href.indexOf('/advice') !== -1){
-						$('#bar5').addClass('layui-nav-item-active');
-					}else if(location.href.indexOf('/commission') !== -1){
-						$('#bar6').addClass('layui-nav-item-active');
-					}else{
-						$('#bar2').addClass('layui-nav-item-active');
-					}
+					}//else if(location.href.indexOf('/test') !== -1){
+					// 	$('#bar3').addClass('layui-nav-item-active');
+					// }else if(location.href.indexOf('/estimate') !== -1){
+					// 	$('#bar4').addClass('layui-nav-item-active');
+					// }else if(location.href.indexOf('/advice') !== -1){
+					// 	$('#bar5').addClass('layui-nav-item-active');
+					// }else if(location.href.indexOf('/commission') !== -1){
+					// 	$('#bar6').addClass('layui-nav-item-active');
+					// }else{
+					// 	$('#bar2').addClass('layui-nav-item-active');
+					// }
 				});
 			block script
 block more-content

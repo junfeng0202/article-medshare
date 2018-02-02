@@ -1,8 +1,8 @@
 module.exports = {
   // server config
   serverConfig: {
-    serverPort: 8086,
-    serverHost: 'http://localhost',
+    serverPort: 80,
+    serverHost: 'http://article.medsci-tech.com',
     sessionSecret: 'xsm_development_secret',
   },
   // mysql config
@@ -30,4 +30,9 @@ module.exports = {
     bucket: 'med-share',
     showLink: 'http://p025heou9.bkt.clouddn.com',
   },
+    // wechat appid/secret
+	wxConfig:{
+		appID:'wx0ad6f23cad3621f8',
+		appSecret:'0ab4b826da07608e4b54299af36c23c0'
+	}
 };

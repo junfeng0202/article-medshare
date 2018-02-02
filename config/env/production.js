@@ -31,9 +31,9 @@ module.exports = {
     showLink: 'http://p025heou9.bkt.clouddn.com',
   },
   // wechat appid/secret
-    wechatConfig:{
-        appId: 'wxe64196a2b2a34571',
-        appSecret: '3d0085937747e85d2fcb0b1399a6e64b',
-        Token: 'easywechat',
-    }
+  wechatConfig:{
+      appId: 'wxe64196a2b2a34571',
+      appSecret: '3d0085937747e85d2fcb0b1399a6e64b',
+      Token: 'easywechat',
+  }
 };

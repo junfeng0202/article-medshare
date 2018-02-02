@@ -24,9 +24,9 @@ fs.readdirSync(__dirname).filter(file => (file.indexOf('.') !== 0) && (file !== 
 });
 
 Object.keys(db).forEach((modelName) => {
-  if ('associate' in db[modelName]) {
-    db[modelName].associate(db);
-  }
+	if ('associate' in db[modelName]) {
+		db[modelName].associate(db);
+	}
 });
 
 db.sequelize = sequelize;
