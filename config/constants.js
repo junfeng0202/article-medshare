@@ -1,6 +1,6 @@
 const constants = {
   // redis_data前缀
-  REDIS_PREFIX: 'shareTest',
+  REDIS_PREFIX: 'article',
 
   // api const
   HTTP_FAIL: 500,

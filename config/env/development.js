@@ -1,23 +1,23 @@
 module.exports = {
   // server config
   serverConfig: {
-    serverPort: 80,
+    serverPort: 8111,
     serverHost: 'http://article.medsci-tech.com',
     sessionSecret: 'xsm_development_secret',
   },
   // mysql config
   mysqlConfig: {
-    host: '127.0.0.1',
+    host: 'rm-2ze62b8v9ox9m35k7.mysql.rds.aliyuncs.com',
     port: 3306,
-    database: 'virus_source_app',
-    username: 'root',
-    password: 'root',
+    database: 't_virus_source',
+    username: 't_virus_source',
+    password: 'test_123',
   },
   // redis config
   redisConfig: {
     host: '127.0.0.1',
     port: '6379',
-    db: 4,
+    db: 5,
     // password: 'root',
     ttl: 1800,
     logErrors: true,
@@ -32,7 +32,7 @@ module.exports = {
   },
     // wechat appid/secret
 	wxConfig:{
-		appID:'wx0ad6f23cad3621f8',
+		appId:'wx0ad6f23cad3621f8',
 		appSecret:'0ab4b826da07608e4b54299af36c23c0'
 	}
 };

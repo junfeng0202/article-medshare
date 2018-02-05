@@ -4,8 +4,10 @@ const constants = require('../../config/constants');
 const HttpUtil = require('../utils/http.util');
 const qiniu = require('qiniu');
 const crypto = require('crypto');
+const rp = require('request-promise');
 const Model = require('../models/index');
 const logger = require('../utils/log.util').getLogger('infoLogger');
+const stateSetting = '123^%$(IJUHBFGdds';
 
 exports.authToken = (req,res)=>{
   const timestamp = req.query.timestamp;
@@ -23,10 +25,6 @@ exports.authToken = (req,res)=>{
 }
 
 
-
-
-
-
 // 中间件：判断是否已经登录
 exports.isLogin = (req, res, next) => {
 	let user = req.session.user || {};
@@ -41,17 +39,6 @@ exports.isLogin = (req, res, next) => {
 	req.session.originalUrl = originalUrl;
 
 	if (!user || !user.userId) {
-		/*const author = Model.User.findOne({where:{'userId':'o82p90nIlafIKFBJAFO4G1e_z6ZA'}});
-		author.then(function(result){
-			// console.log(res);
-			req.session.user = result.dataValues;
-			next();
-		}).catch(function(err){
-			const httpUtil = new HttpUtil(req, res);
-			console.log(err);
-			httpUtil.sendJson(constants.HTTP_FAIL, '系统错误');
-			return ;
-		});*/
 		// console.log(user);
 
 		res.redirect(`${config.serverConfig.serverHost}:${config.serverConfig.serverPort}/auth/login`);
@@ -69,58 +56,81 @@ exports.loginPage = (req, res) => {
 exports.login = (req, res) => {
 	const appid = config.wxConfig.appId;
 	const redirectUri = config.serverConfig.serverHost+'/auth/getCode';
-	const base64Url = new Buffer(redirectUri,'base64');
-	const weixin_auth_url = 'https://open.weixin.qq.com/connect/qrconnect?appid='+appid+'&redirect_uri='+base64Url.toString()+'&response_type=code&scope=snsapi_login&state=123987#wechat_redirect';
+	// const base64Url = new Buffer(redirectUri,'base64');
+  // console.log(encodeURIComponent(redirectUri));
+  // console.log(redirectUri);
+	const weixin_auth_url = 'https://open.weixin.qq.com/connect/qrconnect?appid='+appid+'&redirect_uri='+ encodeURIComponent(redirectUri) +'&response_type=code&scope=snsapi_login&state='+stateSetting+'#wechat_redirect';
 	res.redirect(weixin_auth_url);
- /* const appid = config.wechatConfig.appId;
-  const redirectUri = config.serverConfig.serverHost+'/auth/getCode';
-  const base64Url = new Buffer(redirectUri,'base64');
-  const weixin_auth_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+ appid +'&redirect_uri='+ base64Url.toString() + '&response_type=code&scope=snsapi_userinfo&state=article#wechat_redirect';
-  res.redirect(weixin_auth_url);*/
-
-  /*const account = req.body.account || '';
-  let password = req.body.password || '';
-  const httpUtil = new HttpUtil(req, res);
-
-  if (!password || !account) {
-    httpUtil.sendJson(constants.HTTP_FAIL, '参数不能为空');
-    return;
-  }
-
-  password = crypto.createHash('md5').update(password).digest('hex');
-  // console.log(password);
-  Model.User.findOne({ where: { account } }).then((managerInfo) => {
-    if (!managerInfo.dataValues || password !== managerInfo.dataValues.password) {
-      httpUtil.sendJson(constants.HTTP_FAIL, '账户或者密码错误');
-      return;
-    }
-
-    req.session.user = {
-      managerId: managerInfo.dataValues.managerId,
-      account: managerInfo.dataValues.account,
-      type: managerInfo.dataValues.type,
-    };
-
-    httpUtil.sendJson(constants.HTTP_SUCCESS, '登入成功', '/news');
-
-    // res.redirect(`${config.serverConfig.serverHost}:${config.serverConfig.serverPort}/index`);
-  }).catch((err) => {
-    logger.info(err);
-    // console.log(err);
-    httpUtil.sendJson(constants.HTTP_FAIL, '系统错误');
-  });*/
 };
 
 // 通过code换取网页授权access_token
 exports.getCode = (req,res)=>{
-	console.log(req.query);return;
-	const appid = config.wxConfig.appId;
-	const appSecret = config.wxConfig.appSecret;
+  // console.log(req.query);
+  (async () => {
     const code = req.query.code;
-    const url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='+appid+'&secret='+appSecret+'&code='+code+'&grant_type=authorization_code';
+    const state = req.query.state;
+    const httpUtil = new HttpUtil(req, res);
+    if(!code || state !== stateSetting){
+        httpUtil.sendJson(constants.HTTP_FAIL, '获取授权失败');
+        return ;
+    }
+    const tokenInfo = await getAccessToken(code);
+    await userLogin(req,res,tokenInfo);
+  })()
 }
+
+// 获取accesstoken
+const getAccessToken = async (code) => {
+  const appid = config.wxConfig.appId;
+  const appSecret = config.wxConfig.appSecret;
+  const url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='+appid+'&secret='+appSecret+'&code='+code+'&grant_type=authorization_code';
+
+  //调用api，获取accessToken
+  const token = await rp(url);
+  return JSON.parse(token);
+}
+
+// 拉去用户个人信息
+const getUserInfo = async (token,openid) => {
+  const url = 'https://api.weixin.qq.com/sns/userinfo?access_token='+ token +'&openid='+ openid +'&lang=zh_CN';
+  const body = await rp(url);
+  return JSON.parse(body);
+}
+
+const userLogin = async (req,res,result) => {
+  console.log(result);
+ // 判断用户是否存在
+  let user = await Model.User.findOne({where:{'userId':result.unionid}});
+
+  // 如果用户存在，记录session，否则，新增用户，记录session
+  if(!user){
+    const userInfo = await getUserInfo(result.access_token,result.openid);
+    // console.log(userInfo);
+    /*
+    { openid: 'ov-6i03RxuCk0FGqceqrjdaCJo_U',
+      nickname: '俊风',
+      sex: 1,
+      language: 'zh_CN',
+      city: '武汉',
+      province: '湖北',
+      country: '中国',
+      headimgurl: 'http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83erHJnq6o3LsAo97icr0m68mGebHATkWMhSxYkM2HTdueJB7PcZCXbBEEZqiatuxOKwF6emhslQjELnQ/132',
+      privilege: [],
+      unionid: 'o82p90nIlafIKFBJAFO4G1e_z6ZA'
+    }
+    */
+    // 将用户信息存入数据库
+    user = await Model.User.create({ userId: userInfo.unionid, openId:userInfo.openid, userName:userInfo.nickname, sex: userInfo.sex, province:userInfo.province, city: userInfo.city, country: userInfo.country, headImgUrl:userInfo.headimgurl});
+  }
+  // console.log(user);
+  //记录session
+  req.session.user = user.dataValues;
+  //跳转到文章页面
+  res.redirect(`${config.serverConfig.serverHost}/news`);
+}
+
 exports.logout = (req, res) => {
-  req.session.manager = {};
+  req.session.user= {};
   res.redirect('/');
 };
 // 请求注册

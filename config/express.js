@@ -36,6 +36,7 @@ module.exports = function () {
 
   // register user routes here.
   require('../app/routes/auth.route')(app);
+  require('../app/routes/index.route')(app);
   require('../app/routes/news.route')(app);
   require('../app/routes/ueditor.route')(app);
 
